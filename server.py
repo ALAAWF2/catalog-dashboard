@@ -18,7 +18,7 @@ def upload():
 
         df = pd.read_excel(file)
 
-        # إعادة تسمية الأعمدة من ملفك إلى الأعمدة التي يتوقعها السكربت
+        # إعادة تسمية الأعمدة حسب ملفك
         df.rename(columns={
             "Item Code": "code",
             "Item Alias": "alias",
@@ -36,12 +36,15 @@ def upload():
         df = df[df["stock"] > 0].fillna("")
         products = df.to_dict(orient="records")
 
+        # تأكد من وجود مجلد static
+        os.makedirs(app.static_folder, exist_ok=True)
+
         js_path = os.path.join(app.static_folder, "products.js")
         with open(js_path, "w", encoding="utf-8") as f:
             f.write("const data = " + json.dumps(products, ensure_ascii=False) + ";")
 
         return "✅ تم تحديث البيانات بنجاح!"
-    
+
     except Exception as e:
         return f"❌ خطأ أثناء رفع الملف: {str(e)}", 500
 
